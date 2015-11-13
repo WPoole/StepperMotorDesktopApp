@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!-- Include the myApp Angular.js controller that we made. -->
+<html ng-app="myApp">
+  <head>
+    <title>Ocuflow</title>
+
+    <style type="text/css">
+      /*When the hidden class is given to an element, it dissapears.*/
+      .hidden {
+        display: none;
+      }
+    </style>
+
+  </head>
+
+  <body style="background-color: #404040">
+
+    <!--**************************************
+    SECTION 1
+    ***************************************-->
+    <section id="sectionOne">
+      <h1 style="text-align: center; font-size: 5em; color: #fff; ">Ocuflow</h1>
+      <hr style="width: 8%; margin-top: -50px; margin-bottom: 80px; border-color: #2391b6;">
+      <p style="text-align: center; font-size: 2em; margin: 0 10%; color: white;">Welcome to your personal Ocuflow computer application! Here you can take full control of your Ocuflow unit.</p>
+      <!-- Button 1. -->
+      <input id="buttonOne" type="button" value="Next" style="display: block; margin: 5% auto; color: white; background-color: #2391b6; border: none; border-radius: 50px; width: 100px; height: 50px; font-size: 1.5em; cursor: pointer;">
+    </section>
+
+    <!--**************************************
+    SECTION 2 
+    ***************************************-->
+    <section id="sectionTwo" class="hidden">
+      <h1 style="text-align: center; font-size: 5em; color: #fff; ">Ocuflow</h1>
+      <hr style="width: 8%; margin-top: -50px; margin-bottom: 80px; border-color: #2391b6;">
+      <p style="text-align: center; font-size: 2em; margin: 0 10%; color: white;">If you encounter any problems while using this, simply unplug your Ocuflow unit, plug it back in, and restart the application.</p>
+      <!-- Button 2. -->
+      <input id="buttonTwo" type="button" value="Next" style="display: block; margin: 5% auto; color: white; background-color: #2391b6; border: none; border-radius: 50px; width: 100px; height: 50px; font-size: 1.5em; cursor: pointer;">
+    </section>
+
+    <!--**************************************
+    SECTION 3
+    ***************************************-->
+    <!-- <section id="sectionThree" class="hidden">
+      <h1 style="text-align: center; font-size: 5em;">Ocuflow</h1>
+      <hr style="width: 8%; margin-top: -50px; margin-bottom: 80px;">
+      <p style="text-align: center; font-size: 2em; margin: 0 10%;">Please select the serial port listed as "Arduino" below, then click "next".</p>
+      <input id="buttonThree" type="button" value="Next" style="display: block; margin: 5% auto;">
+    </section> -->
+
+    <!--**************************************
+    CONTROLS SECTION 
+    ***************************************-->
+    <section id="sectionFour" class="hidden">
+
+      <h1 style="text-align: center; font-size: 5em; color: #fff;">Ocuflow</h1>
+      <hr style="width: 8%; margin-top: -50px; margin-bottom: 80px; border-color: #2391b6;">
+      <p style="text-align: center; font-size: 2em; margin: 0 10% 100px; color: white;">You're all set! You can now control all aspects of your Ocuflow unit using the controls shown below. Enjoy!</p>
+
+      <p style="font-size: 1.5em; margin-left: 5%; color: #2391b6;">Set Motor Speeds:</p>
+
+      <!--**************************************
+      SPEED FOR MOTOR 1 
+      ***************************************-->
+      <div ng-controller="myController" style="margin-left: 5%;">
+          <label style="color: white;">Motor 1 Speed: <input id="speed1Input" type="number" name="speed1" ng-model="speed"></label>
+          <!-- Speed Button 1. -->
+          <input id="speed1Button" type="button" value="Speed Motor 1" ng-click="setSpeed()" style="cursor: pointer;">
+          <p style="color: white; margin-top: 5px;">{{speed}}</p>
+      </div>
+
+      <!--**************************************
+      SPEED FOR MOTOR 2 
+      ***************************************-->
+      <div ng-controller="myController" style="margin-left: 5%;">
+          <label style="color: white;">Motor 2 Speed: <input id="speed2Input" type="number" name="speed2" ng-model="speed"></label>
+          <!-- Speed Button 1. -->
+          <input id="speed2Button" type="button" value="Speed Motor 2" ng-click="setSpeed()" style="cursor: pointer;">
+          <p style="color: white; margin-top: 5px;">{{speed}}</p>
+      </div>
+
+      <p style="font-size: 1.5em; margin-left: 5%; margin-top: 70px; color: #2391b6;">Set Motor Directions:</p>
+
+      <!--**************************************
+      MOTOR 1 DIRECTION
+      ***************************************-->
+      <div id="motor1Direction" style="margin-left: 5%;">
+        <h3 style="margin-bottom: 5px; color: white;">Motor 1</h3>
+        <input id="radio1" type="radio" name="motor1Dir" value="forward" checked> 
+        <label for="radio1" style="color: white;"> Forward</label>
+        <br>
+        <input id="radio2" type="radio" name="motor1Dir" value="backward">
+        <label for="radio2" style="color: white;"> Backward</label>
+      </div>
+
+      <!--**************************************
+      MOTOR 2 DIRECTION
+      ***************************************-->
+      <div id="motor2Direction" style="margin-left: 5%;">
+        <h3 style="margin-bottom: 5px; color: white;">Motor 2</h3>
+        <input id="radio3" type="radio" name="motor2Dir" value="forward" checked>
+        <label for="radio3" style="color: white;"> Forward</label>
+        <br>
+        <input id="radio4" type="radio" name="motor2Dir" value="backward"></label>
+        <label for="radio4" style="color: white;"> Backward</label>
+      </div>
+      
+      <!-- Button to control motor directions. -->
+      <input id="motorDirs" type="button" value="Motor Direction" style="margin-left: 5%; margin-top: 10px; margin-bottom: 50px; cursor: pointer;">
+
+    </section>
+
+
+
+    <!--**************************************
+    SCRIPT SECTION 
+    ***************************************-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      //Start web socket by connecting to localhost:12345 (where the server is running)
+      var socket = io.connect('http://localhost:12345');
+      
+      
+      /*************************************
+      SPEED FOR MOTOR 1 
+      *************************************/
+    
+      //When speed1Button is clicked, set speed2val to the value provided by the user.
+      //Then, depending on the combination of direction buttons that are clicked, emit
+      //the "changeSpeed" event through the socket to the server and send the appropriate data.
+      //Note that the "|" in all of the data below is simply present to provide an easy point
+      //at which we can split the data to retrieve the appropriate information.
+      $('#speed1Button').click(function(e) {
+        
+        var speed2Val = $('#speed1Input').val();
+        
+        if(document.getElementById('radio1').checked && document.getElementById('radio3').checked) {
+          socket.emit('changeSpeed', 'aa' + speed2Val + "|" + 'cc');
+        }
+
+        else if(document.getElementById('radio1').checked && document.getElementById('radio4').checked) {
+          socket.emit('changeSpeed', 'aa' + speed2Val + "|" + 'dd');
+        }
+
+        else if(document.getElementById('radio2').checked && document.getElementById('radio3').checked) {
+          socket.emit('changeSpeed', 'aa' + speed2Val + "|" + 'ee');
+        }
+
+        else if(document.getElementById('radio2').checked && document.getElementById('radio4').checked) {
+          socket.emit('changeSpeed', 'aa' + speed2Val + "|" + 'ff');
+        }
+      })
+
+      /*************************************
+      SPEED FOR MOTOR 2
+      *************************************/
+
+      //Same idea as for "SPEED FOR MOTOR 1" section above.
+      $('#speed2Button').click(function(e) {
+        
+        var speed2Val = $('#speed2Input').val();
+        
+
+        if(document.getElementById('radio1').checked && document.getElementById('radio3').checked) {
+          socket.emit('changeSpeed', 'bb' + speed2Val + "|" + 'cc');
+        }
+
+        else if(document.getElementById('radio1').checked && document.getElementById('radio4').checked) {
+          socket.emit('changeSpeed', 'bb' + speed2Val + "|" + 'dd');
+        }
+
+        else if(document.getElementById('radio2').checked && document.getElementById('radio3').checked) {
+          socket.emit('changeSpeed', 'bb' + speed2Val + "|" + 'ee');
+        }
+
+        else if(document.getElementById('radio2').checked && document.getElementById('radio4').checked) {
+          socket.emit('changeSpeed', 'bb' + speed2Val + "|" + 'ff');
+        }
+      })
+
+      /*************************************
+      MOTORS 1 & 2 DIRECTIONS
+      *************************************/
+
+      //When the motorDirs button is clicked, check all the possible options listed below. Then,
+      //emit the message event through the websocket to the server and emit the corresponding data.
+      $('#motorDirs').click(function(e) {
+        
+        if(document.getElementById('radio1').checked && document.getElementById('radio3').checked) {
+          socket.emit('message', 'cc');
+        }
+
+        else if(document.getElementById('radio1').checked && document.getElementById('radio4').checked) {
+          socket.emit('message', 'dd');
+        }
+
+        else if(document.getElementById('radio2').checked && document.getElementById('radio3').checked) {
+          socket.emit('message', 'ee');
+        }
+
+        else if(document.getElementById('radio2').checked && document.getElementById('radio4').checked) {
+          socket.emit('message', 'ff');
+        }
+      })
+
+    </script>
+
+
+    <!--**************************************
+    CHANGE BETWEEN PAGES
+    ***************************************-->
+
+    <!-- This script simply adds and removes the "hidden" class (listed at the top of 
+    this file) in order to make it look like we are actually changing pages on the app.
+    Really we are simply making things appear and dissapear in a particular order. -->
+    <script type="text/javascript">
+      $('#buttonOne').click(function(e) {
+        $('#sectionOne').addClass("hidden");
+        $('#sectionOne').next().removeClass("hidden");      
+      });
+
+      $('#buttonTwo').click(function(e) {
+        $('#sectionTwo').addClass("hidden");
+        $('#sectionTwo').next().removeClass("hidden");
+      });
+
+      // $('#buttonThree').click(function(e) {
+      //  $('#sectionThree').addClass("hidden");
+      //  $('#sectionThree').next().removeClass("hidden");
+      // });
+
+
+
+    </script>
+
+
+
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script type="text/javascript" src="myApp.js"></script>
+    
+    <!-- This is the Angular.js script that allow the numbers on the UI to be updated in 
+    real time. Not totally necessary, but I though it was a cool/nice feature to have.  -->
+    <script>
+      var myApp = angular.module('myApp', []);
+
+      myApp.controller('myController', function($scope) {
+        $scope.speed = 5;
+        $scope.setSpeed = function() {
+          
+        }
+      });
+    </script>
+
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
